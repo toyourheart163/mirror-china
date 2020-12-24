@@ -4,7 +4,7 @@ mirrors of china 中国镜像自动化设置脚本，包含 pip pub npm yarn
 ### 配置
 
 ```bash
-git clone //github.com/toyourheart163/mirror-china && cd mirror-china && chmod +x mirror.sh && mv mirror.sh
+git clone https://github.com/toyourheart163/mirror-china && cd mirror-china && chmod +x mirror.sh && mv mirror.sh
 /usr/local/bin/mirror
 ```
 
