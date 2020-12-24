@@ -4,6 +4,7 @@
 
 s1=$1
 s2=$2
+ZSHRC=~/.zshrc
 function usage() {
    echo mirror -h for help
    echo """set mirror:
@@ -17,14 +18,23 @@ unset mirror:
 }
 
 function set_url() {
-    case $1 in
+    case $s1 in
         '-h' ) usage;;
         'pip' )
-            pip config set global.index-url\
-		    https://pypi.una.singhua.edu.cn/simple;;
+            pipconf=~/.config/pip/pip.conf
+            pipdir=~/.config/pip
+            if ! [ -d $pipdir ] || ! [ -d ~/.pip ]; then
+                mkdir $pipdir
+                echo """[global]
+                index-url=https://pypi.tuna.singhua.edu.cn/simple""" > $pipconf
+            elif [ -f $pipconf ] || [ -f ~/.pip/pip.conf ]; then
+                pip config set global.index-url\
+                https://pypi.tuna.singhua.edu.cn/simple
+            fi
+            ;;
         'npm' ) npm config set registry https://registry.npm.taobao.org;;
         'yarn' ) yarn config set registry https://registry.npm.taobao.org;;
-        'pub' ) echo "export PUB_HOSTED_URL=https://pub.flutter-cn.io" >> ~/.zshrc && grep 'PUB_HOSTED_URL' ~/.zshrc;;
+        'pub' ) echo "export PUB_HOSTED_URL=https://pub.flutter-cn.io" >> $ZSHRC && grep 'PUB_HOSTED_URL' $ZSHRC;;
         * ) usage;;
     esac
 }
@@ -52,20 +62,26 @@ function unset_url() {
     esac
 }
 
-if [ "$s2" = "set" ]; then
+if [ "$s2" = "" ]; then
+    if [ "$s1" = "-h" ] || [ "$s1" = "" ]; then
+        usage
+    elif [ "$s1" = "list" ]; then
+        s2="get"
+        for package_manage in pip npm yarn pub
+        do
+            s1=$package_manage
+            echo $package_manage
+            get_url
+        done
+    else
+        set_url
+    fi
+elif [ "$s2" = "set" ]; then
     set_url
 elif [ "$s2" = "unset" ] || [ "$s2" = "n" ]; then
     unset_url
 elif [ "$s2" = "get" ]; then
     get_url
-elif [ "$s1" = "list" ]; then
-    s2="get"
-    for package_manage in pip npm yarn pub
-    do
-        s1=$package_manage
-        echo $package_manage
-        get_url
-    done
 else
 	usage
 fi
