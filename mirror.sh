@@ -26,10 +26,10 @@ function set_url() {
             if ! [ -d $pipdir ] || ! [ -d ~/.pip ]; then
                 mkdir $pipdir
                 echo """[global]
-                index-url=https://pypi.tuna.singhua.edu.cn/simple""" > $pipconf
+index-url=https://pypi.tuna.tsinghua.edu.cn/simple""" > $pipconf
             elif [ -f $pipconf ] || [ -f ~/.pip/pip.conf ]; then
                 pip config set global.index-url\
-                https://pypi.tuna.singhua.edu.cn/simple
+                https://pypi.tuna.tsinghua.edu.cn/simple
             fi
             ;;
         'npm' ) npm config set registry https://registry.npm.taobao.org;;
