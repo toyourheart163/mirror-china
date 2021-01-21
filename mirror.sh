@@ -1,21 +1,23 @@
-#! bash
+#!/bin/bash
 
-# set -x
+set -x
 
 s1=$1
 s2=$2
 ZSHRC=~/.zshrc
+PUB=PUB_HOSTED_URL
+PUB_HOSTED_URL="export PUB_HOSTED_URL=https://pub.flutter-cn.io"
 function usage() {
    echo mirror -h for help
    echo """set mirror:
-         $ mirror pip 
-                  npm 
-                  pub
-                  list # list config
+$ mirror pip 
+         npm 
+         pub
+         list # list config
 unset mirror:
-         $ mirror pip unset
-                  """
+$ mirror pip unset"""
 }
+[ $# = 0 ] && usage
 
 function set_url() {
     case $s1 in
@@ -34,7 +36,15 @@ index-url=https://pypi.tuna.tsinghua.edu.cn/simple""" > $pipconf
             ;;
         'npm' ) npm config set registry https://registry.npm.taobao.org;;
         'yarn' ) yarn config set registry https://registry.npm.taobao.org;;
-        'pub' ) echo "export PUB_HOSTED_URL=https://pub.flutter-cn.io" >> $ZSHRC && grep 'PUB_HOSTED_URL' $ZSHRC;;
+        'pub' ) 
+          echo set pub
+          if [ "$(grep $PUB $ZSHRC)" = "" ]; then
+            echo $PUB_HOSTED_URL >> $ZSHRC && grep 'PUB' $ZSHRC
+          elif [ "$(grep '^export PUB_HOSTED_URL=' ${ZSHRC})" != "" ]; then
+            echo uncomment
+            sed "@^#.*$PUB @s@^#@@" -i $ZSHRC && grep $PUB $ZSHRC
+          fi
+          ;;
         * ) usage;;
     esac
 }
@@ -44,7 +54,9 @@ function get_url() {
         'pip' ) pip config get global.index-url;;
         'npm' ) npm config get registry;;
         'yarn' ) yarn config get registry;;
-        'pub' ) echo $PUB_HOSTED_URL;;
+        'pub' ) 
+          echo $PUB_HOSTED_URL
+          grep $PUB $ZSHRC;;
         * ) usage;;
     esac
 }
@@ -53,35 +65,37 @@ function unset_url() {
         'pip' ) pip config unset global.index-url;;
         'npm' ) npm config delete registry;;
         'yarn' ) yarn config delete registry;;
-        'pub' ) echo """PUB_HOSTED_URL=$PUB_HOSTED_URL 
-            go to ~/.zshrc and remove PUB_HOSTED_URL
-            unset PUB_HOSTED_URL"""
-            unset PUB_HOSTED_URL
-            echo PUB_HOSTED_URL=$PUB_HOSTED_URL;;
+        'pub' ) 
+          if [ "$(grep '^export PUB' $ZSHRC)" != "" ]; then
+            # comment
+            echo unset pub && grep $PUB $ZSHRC
+            sed "/export $PUB/ s/^#*/#/" -i $ZSHRC && grep $PUB $ZSHRC
+          fi
+          ;;
         * ) usage;;
     esac
 }
 
-if [ "$s2" = "" ]; then
-    if [ "$s1" = "-h" ] || [ "$s1" = "" ]; then
-        usage
-    elif [ "$s1" = "list" ]; then
-        s2="get"
-        for package_manage in pip npm yarn pub
+case $2 in
+  "" )
+    case $1 in
+      -h ) usage;;
+      list ) 
+        s2="!get"
+        array=( pip pub npm yarn )
+        for package_manage in ${array[@]}
         do
             s1=$package_manage
             echo $package_manage
             get_url
-        done
-    else
-        set_url
-    fi
-elif [ "$s2" = "set" ]; then
-    set_url
-elif [ "$s2" = "unset" ] || [ "$s2" = "n" ]; then
-    unset_url
-elif [ "$s2" = "get" ]; then
-    get_url
-else
-	usage
-fi
+        done;;
+      * )  set_url;;
+    esac   
+    ;;
+  set ) set_url;;
+  unset | n ) unset_url;;
+  get ) get_url;;
+  * ) usage;;
+esac
+
+# vim: ts=4 sw=4 tw=0 et :
