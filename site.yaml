@@ -1,0 +1,27 @@
+way:
+  cmd: [pip, npm, yarn, docker]
+  export: [dart, flutter, go, brew]
+  config_file: [maven, gradle]
+pip:
+  - https://pypi.douban.com/simple
+  - https://pypi.tuna.tsinghua.edu.cn/simple
+python:
+  - https://npm.taobao.org/python
+npm:
+  - https://registry.npm.taobao.org
+yarn:
+  - https://registry.npm.taobao.org
+dart:
+  - https://pub.flutter-io.cn
+flutter:
+  - https://storage.flutter-io.cn
+docker:
+  - https://dockerhub.azk8s.cn
+  - https://hub.mirror.c.163.com
+go:
+  - https://goproxy.cn
+maven:
+  - https://maven.aliyun.com/repository/public
+gradle:
+  - https://maven.aliyun.com/repository/google
+  - https://maven.aliyun.com/repository/jcenter
